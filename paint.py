@@ -4,7 +4,7 @@ import tkinter as tk
 import sys, argparse, os
 from random import *
 
-def test_function(event):
+def brush1(event):
     global brushColor
     pygame.draw.circle(screen,(brushColor),(event.x,event.y),brushRadius)
 
@@ -91,7 +91,7 @@ pygame.display.init()
 screen = pygame.display.set_mode(screenSize)
 
 #keyboard bindings
-embed.bind("<B1-Motion>",test_function)
+embed.bind("<B1-Motion>",brush1)
 
 if image == None:
     screen.fill((255,255,255))

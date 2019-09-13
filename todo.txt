@@ -1,4 +1,4 @@
-undo + redo
+undo + redo (save frame after every action into a list)
 eraser tool
 color presets
 save image
