@@ -1,5 +1,4 @@
-get tkinter to work concurrently with pygame
-paint brush tool
-basic color selection (rgb tkinter + presets)
+undo + redo
 eraser tool
+color presets
 save image
