@@ -7,11 +7,14 @@ from random import *
 
 def brush1(event):
     global brushColor
-    pygame.draw.circle(screen,(brushColor),(event.x,event.y),brushRadius)
+    pygame.draw.circle(drawLayer,(brushColor),(event.x,event.y),brushRadius)
+
+def eraserTool(event):
+    pygame.draw.circle(drawLayer,pygame.Color(255,255,255),(event.x,event.y),brushRadius)
 
 def saveFrame(event):
     global editArray
-    pxarray = pygame.surfarray.array3d(screen)
+    pxarray = pygame.surfarray.array3d(drawLayer)
     frameArray.append(pxarray)
     if len(frameArray) > 15: #frameArray stores last 15 changes made to image
         frameArray.remove(frameArray[0])
@@ -23,11 +26,12 @@ def undoFrame():
     editArray.append(currentPxArray) #save current image incase of redo
     lastPxArray = frameArray[-2] #get second most recent frame
 
-    pygame.surfarray.blit_array(screen, lastPxArray)
+    pygame.surfarray.blit_array(drawLayer, lastPxArray)
     del frameArray[-1]
 
 def redoFrame():
-    pygame.surfarray.blit_array(screen, editArray[-1])
+    pygame.surfarray.blit_array(drawLayer, editArray[-1])
+    frameArray.append(editArray[-1])
     del editArray[-1]
 
 def set_rgb_color():
@@ -35,14 +39,21 @@ def set_rgb_color():
     r = app1.r_entry.get()
     g = app1.g_entry.get()
     b = app1.b_entry.get()
-    brushColor = (int(r),int(g),int(b))
+    try:
+        brushColor = (int(r),int(g),int(b))
+    except ValueError:
+        pass
+    
+    #change tool to brush
+    embed.bind("<B1-Motion>",brush1)
 
 class toolsApp:
     def __init__(self,master):
         self.master = master
 
         self.button1 = tk.Button(self.master,text='Brush',command=set_rgb_color).grid(row=0,column=0)
-
+        self.button2 = tk.Button(self.master,text="Eraser",command=lambda: embed.bind("<B1-Motion>",eraserTool)).grid(row=0,column=1)
+        
         self.r_text = tk.Label(self.master, text="Red Value")
         self.r_text.grid(row=1,column=0)
         self.r_entry = tk.Entry(self.master)
@@ -85,7 +96,6 @@ menubar = tk.Menu(root)
 root.config(menu=menubar)
 
 filesMenu = tk.Menu(menubar,tearoff=0)
-filesMenu.add_command(label="Open")
 filesMenu.add_command(label="Save")
 editMenu = tk.Menu(menubar,tearoff=0)
 editMenu.add_command(label="Undo",command=undoFrame)
@@ -111,7 +121,9 @@ root.update()
 
 #pygame
 pygame.display.init()
-screen = pygame.display.set_mode(screenSize)
+screen = pygame.display.set_mode(screenSize) #background
+drawLayer = pygame.Surface(screenSize, pygame.SRCALPHA, 32)
+drawLayer = drawLayer.convert_alpha()
 
 #keyboard bindings
 embed.bind("<B1-Motion>",brush1)
@@ -130,6 +142,7 @@ while True:
     #rx, ry = randint(0,screenSize[0]), randint(0,screenSize[1])
     #pygame.draw.circle(screen,(255,0,0),(rx,ry),30)
 
+    screen.blit(drawLayer, (0,0))
     pygame.display.update()
     root.update()
 
