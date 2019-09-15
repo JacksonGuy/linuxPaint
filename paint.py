@@ -2,11 +2,33 @@ import pygame
 from pygame.locals import *
 import tkinter as tk
 import sys, argparse, os
+import numpy as np
 from random import *
 
 def brush1(event):
     global brushColor
     pygame.draw.circle(screen,(brushColor),(event.x,event.y),brushRadius)
+
+def saveFrame(event):
+    global editArray
+    pxarray = pygame.surfarray.array3d(screen)
+    frameArray.append(pxarray)
+    if len(frameArray) > 15: #frameArray stores last 15 changes made to image
+        frameArray.remove(frameArray[0])
+    if len(editArray) > 1:
+        editArray = [] #clear edit array on change made
+
+def undoFrame():
+    currentPxArray = frameArray[-1] #current frame
+    editArray.append(currentPxArray) #save current image incase of redo
+    lastPxArray = frameArray[-2] #get second most recent frame
+
+    pygame.surfarray.blit_array(screen, lastPxArray)
+    del frameArray[-1]
+
+def redoFrame():
+    pygame.surfarray.blit_array(screen, editArray[-1])
+    del editArray[-1]
 
 def set_rgb_color():
     global brushColor
@@ -48,6 +70,8 @@ image = None #image to edit
 global brushColor
 brushColor = (0,0,0)
 brushRadius = 5
+frameArray = [] #after edit is made to image, pixelArray is stored here
+editArray = [] #if an undo is made, discarded pixelArray is stored here
 
 #system arguments
 parser.add_argument('--image', help='Image to view or edit')
@@ -64,9 +88,8 @@ filesMenu = tk.Menu(menubar,tearoff=0)
 filesMenu.add_command(label="Open")
 filesMenu.add_command(label="Save")
 editMenu = tk.Menu(menubar,tearoff=0)
-editMenu.add_command(label="Copy")
-editMenu.add_command(label="Paste")
-editMenu.add_command(label="Cut")
+editMenu.add_command(label="Undo",command=undoFrame)
+editMenu.add_command(label="Redo",command=redoFrame)
 menubar.add_cascade(label="File", menu=filesMenu)
 menubar.add_cascade(label="Edit", menu=editMenu)
 
@@ -92,11 +115,15 @@ screen = pygame.display.set_mode(screenSize)
 
 #keyboard bindings
 embed.bind("<B1-Motion>",brush1)
+embed.bind("<ButtonRelease-1>",saveFrame)
 
 if image == None:
     screen.fill((255,255,255))
 else:
     screen.blit(image,(0,0))
+
+pxarray = pygame.surfarray.array3d(screen)
+frameArray.append(pxarray)
 
 while True:
     #print(pygame.mouse.get_pos())
