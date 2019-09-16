@@ -4,6 +4,7 @@ import tkinter as tk
 import sys, argparse, os
 import numpy as np
 from random import *
+from functools import partial
 
 def brush1(event):
     global brushColor
@@ -47,6 +48,17 @@ def set_rgb_color():
     #change tool to brush
     embed.bind("<B1-Motion>",brush1)
 
+def set_color_button(rgb):
+    global brushColor
+    brushColor = rgb
+
+def set_brush_size():
+    global brushRadius
+    try:
+        brushRadius = int(app1.brushSize_entry.get())
+    except ValueError:
+        pass
+
 class toolsApp:
     def __init__(self,master):
         self.master = master
@@ -69,9 +81,27 @@ class toolsApp:
         self.b_entry = tk.Entry(self.master)
         self.b_entry.grid(row=3,column=1)
 
+        self.red_color_button = tk.Button(self.master,command=partial(set_color_button,(255,0,0)),bg="#ff0000").grid(row=1,column=2,sticky="e")
+        self.green_color_button = tk.Button(self.master,command=partial(set_color_button,(0,255,0)),bg='#00ff00').grid(row=2,column=2,sticky="e")
+        self.blue_color_button = tk.Button(self.master,command=partial(set_color_button,(0,0,255)),bg='#0000ff').grid(row=3,column=2,sticky="e")
+        self.yellow_color_button = tk.Button(self.master,command=partial(set_color_button,(255,255,0)),bg='#ffff00').grid(row=1,column=3,sticky="e")
+        self.purple_color_button = tk.Button(self.master,command=partial(set_color_button,(255,0,255)),bg='#ff00ff').grid(row=2, column=3,sticky="e")
+        self.orange_color_button = tk.Button(self.master,command=partial(set_color_button,(255,165,0)),bg="#FFA500").grid(row=3,column=3, sticky="e")
+        self.black_color_button = tk.Button(self.master,command=partial(set_color_button,(0,0,0)),bg="#000000").grid(row=1,column=4,sticky="e")
+        self.white_color_button = tk.Button(self.master,command=partial(set_color_button,(255,255,255)),bg="#FFFFFF").grid(row=2,column=4,sticky="e")
+        self.cyan_color_button = tk.Button(self.master,command=partial(set_color_button,(0,255,255)),bg="#00FFFF").grid(row=3,column=4,sticky="e")
+
+        self.brushSize_text = tk.Label(self.master, text="Brush Size")
+        self.brushSize_text.grid(row=4,column=0)
+        self.brushSize_entry = tk.Entry(self.master)
+        self.brushSize_entry.grid(row=4,column=1)
+        self.brushSize_button = tk.Button(self.master,text="Set Brush Size",command=set_brush_size).grid(row=5,column=0)
+
 #windows
 root = tk.Tk()
 toolWindow = tk.Toplevel()
+toolWindow.grid_rowconfigure(10,minsize=10)
+toolWindow.grid_columnconfigure(10,minsize=10)
 
 parser = argparse.ArgumentParser()
 clock = pygame.time.Clock()

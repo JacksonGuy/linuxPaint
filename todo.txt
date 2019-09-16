@@ -1,9 +1,6 @@
-eraser tool
-undo erase
 erase with images
-color presets
 save image
 improve brush
-brush radius input
 have input boxes show current value
 keyboard shortcuts
+bug with entire screen turning black
