@@ -19,7 +19,7 @@ def saveFrame(event):
     frameArray.append(pxarray)
     if len(frameArray) > 15: #frameArray stores last 15 changes made to image
         frameArray.remove(frameArray[0])
-    if len(editArray) > 1:
+    if len(editArray) > 0:
         editArray = [] #clear edit array on change made
 
 def undoFrame():
@@ -28,7 +28,10 @@ def undoFrame():
     lastPxArray = frameArray[-2] #get second most recent frame
 
     pygame.surfarray.blit_array(drawLayer, lastPxArray)
-    del frameArray[-1]
+    try:
+        frameArray.pop()
+    except ValueError:
+        print('Error removing frame from array')
 
 def redoFrame():
     pygame.surfarray.blit_array(drawLayer, editArray[-1])
@@ -164,14 +167,17 @@ if image == None:
 else:
     screen.blit(image,(0,0))
 
+#ok so the next few lines look really stupid but without them the undo function doesnt work
+#so we keeping these for now
 pxarray = pygame.surfarray.array3d(screen)
 frameArray.append(pxarray)
+screen.fill((0,0,0))
+pxarray = pygame.surfarray.array3d(screen)
+frameArray.append(pxarray)
+undoFrame()
 
 while True:
-    #print(pygame.mouse.get_pos())
-    #rx, ry = randint(0,screenSize[0]), randint(0,screenSize[1])
-    #pygame.draw.circle(screen,(255,0,0),(rx,ry),30)
-
+    #print(len(frameArray))
     screen.blit(drawLayer, (0,0))
     pygame.display.update()
     root.update()

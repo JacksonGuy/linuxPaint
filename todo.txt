@@ -1,6 +1,4 @@
 erase with images
 save image
-improve brush
-have input boxes show current value
+have input boxes show current value (from start)
 keyboard shortcuts
-bug with entire screen turning black
