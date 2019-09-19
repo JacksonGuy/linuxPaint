@@ -11,7 +11,11 @@ def brush1(event):
     pygame.draw.circle(drawLayer,(brushColor),(event.x,event.y),brushRadius)
 
 def eraserTool(event):
-    pygame.draw.circle(drawLayer,pygame.Color(255,255,255),(event.x,event.y),brushRadius)
+    global image
+    if image == None:
+        pygame.draw.circle(drawLayer,pygame.Color(255,255,255),(event.x,event.y),brushRadius)
+    else:
+        drawLayer.blit(image,(event.x,event.y),pygame.Rect(event.x,event.y,brushRadius,brushRadius))
 
 def saveFrame(event):
     global editArray
@@ -22,7 +26,7 @@ def saveFrame(event):
     if len(editArray) > 0:
         editArray = [] #clear edit array on change made
 
-def undoFrame():
+def undoFrame(event=None):
     currentPxArray = frameArray[-1] #current frame
     editArray.append(currentPxArray) #save current image incase of redo
     lastPxArray = frameArray[-2] #get second most recent frame
@@ -33,10 +37,13 @@ def undoFrame():
     except ValueError:
         print('Error removing frame from array')
 
-def redoFrame():
+def redoFrame(event=None):
     pygame.surfarray.blit_array(drawLayer, editArray[-1])
     frameArray.append(editArray[-1])
     del editArray[-1]
+
+def save_image(event=None):
+    pygame.image.save(screen, args.n)
 
 def set_rgb_color():
     global brushColor
@@ -121,6 +128,7 @@ editArray = [] #if an undo is made, discarded pixelArray is stored here
 parser.add_argument('--image', help='Image to view or edit')
 parser.add_argument('--w', help='Image Width')
 parser.add_argument('--h', help='Image Height')
+parser.add_argument('--n', help='Name to save image as')
 args = parser.parse_args()
 
 #tkinter stuff
@@ -129,7 +137,7 @@ menubar = tk.Menu(root)
 root.config(menu=menubar)
 
 filesMenu = tk.Menu(menubar,tearoff=0)
-filesMenu.add_command(label="Save")
+filesMenu.add_command(label="Save",command=save_image)
 editMenu = tk.Menu(menubar,tearoff=0)
 editMenu.add_command(label="Undo",command=undoFrame)
 editMenu.add_command(label="Redo",command=redoFrame)
@@ -161,6 +169,9 @@ drawLayer = drawLayer.convert_alpha()
 #keyboard bindings
 embed.bind("<B1-Motion>",brush1)
 embed.bind("<ButtonRelease-1>",saveFrame)
+embed.bind_all("<Control-z>",undoFrame)
+embed.bind_all("<Control-y>",redoFrame)
+embed.bind_all("<Control-s>",save_image)
 
 if image == None:
     screen.fill((255,255,255))
@@ -175,6 +186,12 @@ screen.fill((0,0,0))
 pxarray = pygame.surfarray.array3d(screen)
 frameArray.append(pxarray)
 undoFrame()
+
+#set rgb entry with current value
+app1.r_entry.insert(0,str(brushColor[0]))
+app1.g_entry.insert(0,str(brushColor[1]))
+app1.b_entry.insert(0,str(brushColor[2]))
+app1.brushSize_entry.insert(0,str(brushRadius))
 
 while True:
     #print(len(frameArray))

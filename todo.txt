@@ -1,4 +1,0 @@
-erase with images
-save image
-have input boxes show current value (from start)
-keyboard shortcuts
