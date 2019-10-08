@@ -2,8 +2,6 @@ import pygame
 from pygame.locals import *
 import tkinter as tk
 import sys, argparse, os
-import numpy as np
-from random import *
 from functools import partial
 
 def brush1(event):
@@ -47,9 +45,9 @@ def save_image(event=None):
 
 def set_rgb_color():
     global brushColor
-    r = app1.r_entry.get()
-    g = app1.g_entry.get()
-    b = app1.b_entry.get()
+    r = toolApp.r_entry.get()
+    g = toolApp.g_entry.get()
+    b = toolApp.b_entry.get()
     try:
         brushColor = (int(r),int(g),int(b))
     except ValueError:
@@ -65,11 +63,11 @@ def set_color_button(rgb):
 def set_brush_size():
     global brushRadius
     try:
-        brushRadius = int(app1.brushSize_entry.get())
+        brushRadius = int(toolApp.brushSize_entry.get())
     except ValueError:
         pass
 
-class toolsApp:
+class toolsAppInstance:
     def __init__(self,master):
         self.master = master
 
@@ -145,7 +143,7 @@ menubar.add_cascade(label="File", menu=filesMenu)
 menubar.add_cascade(label="Edit", menu=editMenu)
 
 #applications
-app1 = toolsApp(toolWindow)
+toolApp = toolsAppInstance(toolWindow)
 
 if args.w != None and args.h != None:
     screenSize = (int(args.w),int(args.h))
@@ -188,13 +186,25 @@ frameArray.append(pxarray)
 undoFrame()
 
 #set rgb entry with current value
-app1.r_entry.insert(0,str(brushColor[0]))
-app1.g_entry.insert(0,str(brushColor[1]))
-app1.b_entry.insert(0,str(brushColor[2]))
-app1.brushSize_entry.insert(0,str(brushRadius))
+toolApp.r_entry.insert(0,str(brushColor[0]))
+toolApp.g_entry.insert(0,str(brushColor[1]))
+toolApp.b_entry.insert(0,str(brushColor[2]))
+toolApp.brushSize_entry.insert(0,str(brushRadius))
+
+#load addons from json
+import importlib.util
+import json
+with open('addonList.json') as addonFile:
+    data = json.load(addonFile)
+
+for addon in data:
+    spec = importlib.util.spec_from_file_location(addon, data[addon])
+    if spec != None:
+        foo = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(foo)
+        foo.run(toolApp)
 
 while True:
-    #print(len(frameArray))
     screen.blit(drawLayer, (0,0))
     pygame.display.update()
     root.update()
