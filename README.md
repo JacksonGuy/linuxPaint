@@ -1,5 +1,5 @@
 # linuxPaint
-There's no good paint tools on linux, so I made my own
+There's no good paint tools on linux (in my opinion), so I made my own
 
 ## How to Use
 Run paint.py from command line using python 3
