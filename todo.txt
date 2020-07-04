@@ -1,4 +1,0 @@
-- some method of allowing users to install addons (script that appends
-json file and moves addon into the folder)
-
-- documentation (tell people that they need a run function)
